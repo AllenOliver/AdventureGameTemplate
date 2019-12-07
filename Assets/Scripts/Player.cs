@@ -11,23 +11,30 @@ public class Player : MonoBehaviour
     [Range(0, 100)]
     public float JumpSpeed;
     public GameObject AttackObject;
+
+    public static Player main { get; private set; }
     #endregion
 
     #region Private fields
     private Rigidbody2D rb;
     private Health health;
+    private BoxCollider2D box;
     #endregion
 
     #region Unity Methods
+
+    private void Awake()
+    {
+        main = this;
+    }
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         health = GetComponent<Health>();
+        box = GetComponent<BoxCollider2D>();
     }
 
     void Update() => Move();
-
-
     
     #endregion
 
@@ -51,11 +58,18 @@ public class Player : MonoBehaviour
     private void Attack() => StartCoroutine(AttackObject.TimedActivate(.25f));
         
 
-    private void TakeHit()
+    public void TakeHit()
     {
         health.TakeHit(1);
-        //Todo Update ui maybe?
+        StartCoroutine(box.TimedDeactivate(.25f));
+        //Flash
+        UpdateHealthUI.UpdateHealth(health.MaxHP, health.CurrentHP);
     }
 
+    public void HealPlayer(int amount)
+    {
+        health.Heal(amount);
+        UpdateHealthUI.UpdateHealth(health.MaxHP, health.CurrentHP);
+    }
     #endregion
 }

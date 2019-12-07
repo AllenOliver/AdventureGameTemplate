@@ -7,5 +7,4 @@ public class EnemyData : ScriptableObject
     public string EnemyName;
     public int MaxHP;
 
-
 }
