@@ -10,17 +10,20 @@ public class UpdateDialogUI : MonoBehaviour
 {
     public static TextMeshProUGUI DialogText;
     public static Image Portait;
+    public static UpdateDialogUI main;
 
+    private Animator anim;
     private void Awake()
     {
-        DialogText = GetComponent<TextMeshProUGUI>();
-        Portait = GetComponent<Image>();
+        if (main == null)
+            main = this;
+
+        DialogText = GetComponentInChildren<TextMeshProUGUI>();
+        Portait = GetComponentInChildren<Image>();
+        anim = GetComponentInParent<Animator>();
     }
 
-    public static void OpenPanel()
-    {
-
-    }
+    public static void OpenPanel() => main.anim.SetTrigger("Open");
     public static void UpdateDialogUIPanel(string text, Sprite portrait = null)
     {
         if (portrait != null)
@@ -32,13 +35,29 @@ public class UpdateDialogUI : MonoBehaviour
         else
             Portait.gameObject.Off();
 
-        DialogText.text = text;
+        //main.StopCoroutine(TypeSentence(text));
+        main.StartTyping(text);
 
     }
 
-    public static void ClosePanel()
-    {
+    public static void ClosePanel() => main.anim.SetTrigger("Close");
 
+    void StartTyping(string text)
+    {
+        StartCoroutine(TypeSentence(text));
+    }
+
+     IEnumerator TypeSentence(string sentence)
+    {
+        DialogText.text = "";
+        foreach (char letter in sentence)
+        {
+            DialogText.text += letter;
+            yield return new WaitForSeconds(.01f);
+        }
+        //textSound.volume = Random.Range(.1f, .3f);
+        //textSound.Play();
+        yield break;
     }
 
 }

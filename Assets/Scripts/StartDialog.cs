@@ -5,17 +5,14 @@ using System.Collections.Generic;
 public class StartDialog : MonoBehaviour
 {
     public DialogData Dialog;
-    public Queue<string> DialogLines;
 
+    private string[] DialogLines;
     private bool talking;
+
     public void StartTalking()
     {
-        if (DialogLines.Count > 0) //empty queue if it has items in it 
-            DialogLines.Clear(); 
 
-        foreach(var line in Dialog.Sentences) //add all to  queue
-            DialogLines.Enqueue(line);
-        
+        DialogLines = Dialog.Sentences;
 
         Globals.CanMove = false;
         if (Dialog != null)
@@ -30,21 +27,16 @@ public class StartDialog : MonoBehaviour
         yield return new WaitForSeconds(.25f);
         if(talking)
         {
-            UpdateDialogUI.UpdateDialogUIPanel(getSentence(), Dialog.CharacterPortrait);
-            yield return new WaitUntil(() => Input.GetButtonDown("Attack"));
-        }
-    }
-
-
-    private string getSentence()
-    {
-        //check for empty queue and return
-        if (DialogLines.Count == 0)
-        {
+            for (int i = 0; i < DialogLines.Length; i++)
+            {
+                UpdateDialogUI.UpdateDialogUIPanel(DialogLines[i], Dialog.CharacterPortrait);
+                yield return new WaitForSeconds(2f);
+                //yield return new WaitUntil(() => UpdateDialogUI.main.Typing = false);
+                UpdateDialogUI.UpdateDialogUIPanel("", Dialog.CharacterPortrait);
+                yield return new WaitForSeconds(1f);
+            }
             EndDialog();
-            return "";
         }
-        return DialogLines.Dequeue(); //Get Next Sentence from the queue
     }
 
     private void EndDialog()
@@ -52,9 +44,6 @@ public class StartDialog : MonoBehaviour
         talking = false;
         Globals.CanMove = true;
         //call ui close function
-
         UpdateDialogUI.ClosePanel();
     }
-
-
 }
